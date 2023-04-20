@@ -1,5 +1,5 @@
 # tinGUI
-WIP a text editor writter in python
+WIP a text editor written in python
 
 ### debian based distros dependecies
 ```bash

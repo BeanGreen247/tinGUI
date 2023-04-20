@@ -31,50 +31,52 @@ class Window:
 
         def openFile():
             tf = filedialog.askopenfilename(
-            initialdir="C:/User/", 
-            title="Open Text file", 
+            initialdir="C:/User/",
+            title="Open Text file",
             filetypes=(("Any Files", "*"),))
             try:
-                tf = open(tf)
-                self.text.delete('1.0', END)
-                root.title("tinGUI")
-                data = tf.read()
-                self.text.insert(END, data)
-                global fileExtension
-                fileExtension = str(pathlib.Path(tf.name).suffix)
-                tf.close()
+             tf = open(tf)
+             self.text.delete('1.0', END)
+             root.title("tinGUI - " + str(pathlib.Path(tf.name)))
+             data = tf.read()
+             self.text.insert(END, data)
+             global fileExtension
+             fileExtension = str(pathlib.Path(tf.name).suffix)
+             tf.close()
             except:
                 pass
 
         def clearTextField():
             self.text.delete('1.0', END)
 
-        def savefile():    
+        def saveFile():
             try:
-                path = root.title().split('-')[1][1:]   
+                path = root.title().split('-')[1][1:]
             except:
-                path = ''
+                path = filedialog.asksaveasfile(filetypes =[("All files", "*.*")]).name
             if path != '':
                 with open(path, 'w') as f:
                     content = self.text.get('1.0', tk.END)
-                f.write(content) 
+                    f.write(content)
             else:
-                savefileas()    
+                saveFileAs()
             self.text.edit_modified(0)
-        
-        def savefileas():    
+
+        def saveFileAs():
             try:
-                path = filedialog.asksaveasfile(filetypes = (("All files", "*.*"))).name
-                root.title('tinGUITest - ' + path)
+                path = filedialog.asksaveasfile(filetypes =[("All files", "*.*")]).name
             except:
-                return
+                path = filedialog.asksaveasfile(filetypes =[("All files", "*.*")]).name
             with open(path, 'w') as f:
                 f.write(self.text.get('1.0', tk.END))
  
         self.button = tk.Button(self.frame, text="Open", command=openFile, bg='#292929', fg='#ffffff')
         self.button.pack(side="left")
 
-        self.button = tk.Button(self.frame, text="Save", command=savefile, bg='#292929', fg='#ffffff')
+        self.button = tk.Button(self.frame, text="Save", command=saveFile, bg='#292929', fg='#ffffff')
+        self.button.pack(side="left")
+
+        self.button = tk.Button(self.frame, text="Save As", command=saveFileAs, bg='#292929', fg='#ffffff')
         self.button.pack(side="left")
 
         self.button = tk.Button(self.frame, text="Clear", command=clearTextField, bg='#292929', fg='#ffffff')

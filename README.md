@@ -55,4 +55,9 @@ This should open the text editor without having to download it.
   * C#
 > more languages will be added as time goes on...
 
+### Issues/Bug reporting
+If you encounter a bug/problem, please report it here, thx
+
+https://github.com/BeanGreen247/tinGUI/issues
+
 BeanGreen247, 2023

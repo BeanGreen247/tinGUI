@@ -37,7 +37,7 @@ class Window:
             try:
                 tf = open(tf)
                 self.text.delete('1.0', END)
-                root.title("tinGUITest")
+                root.title("tinGUI")
                 data = tf.read()
                 self.text.insert(END, data)
                 global fileExtension
@@ -104,6 +104,6 @@ class Window:
  
  
 root = tk.Tk()
-root.title("tinGUITest")
+root.title("tinGUI")
 window = Window(root)
 root.mainloop()

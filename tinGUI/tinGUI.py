@@ -86,6 +86,7 @@ class Window:
         self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
         self.text.pack(expand = True, fill = tk.BOTH)
 
+        # WIP
         # syntax highlighting per language
         #def syntaxHihglighting():
         #    try:

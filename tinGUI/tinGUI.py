@@ -3,7 +3,12 @@ import idlelib.percolator as ip
 import re
 import pathlib
 import tkinter as tk
+import threading
 from tkinter import END, filedialog
+
+root = tk.Tk()
+# Creating Menubar
+menubar = tk.Menu(root)
 
 class PythonSyntax:
     cdg = ic.ColorDelegator()
@@ -19,19 +24,29 @@ class PythonSyntax:
     cdg.tagdefs['STRING'] = {'foreground': '#7F3F00', 'background': '#292929'}
     cdg.tagdefs['DEFINITION'] = {'foreground': '#007F7F', 'background': '#292929'}
 
+class App():
+    def __init__(self):
+        super().__init__()
+
+        self.frame = tk.Frame(self.master, background='#050505')
+        self.frame.pack(expand = True, fill = tk.BOTH)
+
+        self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
+        self.text.pack(expand = True, fill = tk.BOTH)
+
 class Window:
     # global variable
     fileExtension = ''
 
     def __init__(self, master):
         self.master = master
-
+        
         self.frame = tk.Frame(self.master, background='#050505')
         self.frame.pack(expand = True, fill = tk.BOTH)
 
         def openFile():
             tf = filedialog.askopenfilename(
-            initialdir="C:/User/",
+            initialdir="C:/User/", #on linux opens /home/username/
             title="Open Text file",
             filetypes=(("Any Files", "*"),))
             try:
@@ -65,28 +80,31 @@ class Window:
         def saveFileAs():
             try:
                 path = filedialog.asksaveasfile(filetypes =[("All files", "*.*")]).name
+                with open(path, 'w') as f:
+                    f.write(self.text.get('1.0', tk.END))
             except:
-                path = filedialog.asksaveasfile(filetypes =[("All files", "*.*")]).name
-            with open(path, 'w') as f:
-                f.write(self.text.get('1.0', tk.END))
+                pass
  
-        self.button = tk.Button(self.frame, text="Open", command=openFile, bg='#292929', fg='#ffffff')
-        self.button.pack(side="left")
+        def guiGroup0(): 
+            # Adding File Menu and commands
+            file = tk.Menu(menubar, tearoff = 0)
+            menubar.add_cascade(label ='File', menu = file)
+            file.add_command(label ='New File', command = None)
+            file.add_command(label ='Open...', command = openFile)
+            file.add_command(label ='Save', command = saveFile)
+            file.add_command(label ='Save As...', command = saveFileAs)
+            file.add_separator()
+            file.add_command(label ='Quit', command = root.destroy)
 
-        self.button = tk.Button(self.frame, text="Save", command=saveFile, bg='#292929', fg='#ffffff')
-        self.button.pack(side="left")
+            # Adding Edit Menu and commands
+            edit = tk.Menu(menubar, tearoff = 0)
+            menubar.add_cascade(label ='Edit', menu = edit)
+            edit.add_command(label ='Clear', command = clearTextField)
 
-        self.button = tk.Button(self.frame, text="Save As", command=saveFileAs, bg='#292929', fg='#ffffff')
-        self.button.pack(side="left")
-
-        self.button = tk.Button(self.frame, text="Clear", command=clearTextField, bg='#292929', fg='#ffffff')
-        self.button.pack(side="left")
-
-        self.button = tk.Button(self.frame, text="Quit", command=root.destroy, bg='#292929', fg='#ffffff')
-        self.button.pack(side="left")
-
-        self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
-        self.text.pack(expand = True, fill = tk.BOTH)
+        def guiGroup1():
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
+            self.text.pack(expand = True, fill = tk.BOTH)
+            ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
 
         # WIP
         # syntax highlighting per language
@@ -102,10 +120,10 @@ class Window:
         #        pass
         #syntaxHihglighting
 
-        ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
- 
- 
-root = tk.Tk()
+        threading.Thread(target=guiGroup0).start()
+        threading.Thread(target=guiGroup1).start()
+
 root.title("tinGUI")
+root.config(menu = menubar)
 window = Window(root)
 root.mainloop()

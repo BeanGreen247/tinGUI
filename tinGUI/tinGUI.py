@@ -45,19 +45,42 @@ class Window:
         self.frame.pack(expand = True, fill = tk.BOTH)
 
         def openFile():
-            tf = filedialog.askopenfilename(
-            initialdir="C:/User/", #on linux opens /home/username/
-            title="Open Text file",
-            filetypes=(("Any Files", "*"),))
             try:
-             tf = open(tf)
-             self.text.delete('1.0', END)
+             tf = filedialog.askopenfilename(
+             initialdir="C:/User/", #on linux opens /home/username/
+             title="Open file",
+             filetypes=(("Any Files", "*"),))
+             try:
+              tf = open(tf)
+              self.text.delete('1.0', END)
+              root.title("tinGUI - " + str(pathlib.Path(tf.name)))
+              data = tf.read()
+              self.text.insert(END, data)
+              global fileExtension
+              fileExtension = str(pathlib.Path(tf.name).suffix)
+              tf.close()
+             except:
+                pass
+            except:
+                pass
+
+        def newFile():
+            try:
+             tf = filedialog.asksaveasfile(
+             initialdir="C:/User/", #on linux opens /home/username/
+             title="New file",
+             filetypes=(("Any Files", "*"),))
              root.title("tinGUI - " + str(pathlib.Path(tf.name)))
-             data = tf.read()
-             self.text.insert(END, data)
-             global fileExtension
-             fileExtension = str(pathlib.Path(tf.name).suffix)
-             tf.close()
+             self.text.delete('1.0', END)
+             try:
+              tf = open(tf)
+              data = tf.read()
+              self.text.insert(END, data)
+              global fileExtension
+              fileExtension = str(pathlib.Path(tf.name).suffix)
+              tf.close()
+             except:
+                pass
             except:
                 pass
 
@@ -89,7 +112,7 @@ class Window:
             # Adding File Menu and commands
             file = tk.Menu(menubar, tearoff = 0)
             menubar.add_cascade(label ='File', menu = file)
-            file.add_command(label ='New File', command = None)
+            file.add_command(label ='New File', command = newFile)
             file.add_command(label ='Open...', command = openFile)
             file.add_command(label ='Save', command = saveFile)
             file.add_command(label ='Save As...', command = saveFileAs)

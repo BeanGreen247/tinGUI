@@ -1,21 +1,31 @@
-import idlelib.colorizer as ic
-import idlelib.percolator as ip
-import re
 import pathlib
 import tkinter as tk
 import threading
 from tkinter import END, filedialog
+import idlelib.percolator as ip
+import idlelib.colorizer as ic
+import re
 
-root = tk.Tk()
-# Creating Menubar
-menubar = tk.Menu(root)
+class TextSyntax:
+    cdg = ic.ColorDelegator()
+    cdg.prog = re.compile(r'\b(?P<MYGROUP>tkinter)\b|' + ic.make_pat(), re.S)
+    cdg.idprog = re.compile(r'\s+(\w+)', re.S)
+
+    cdg.tagdefs['MYGROUP'] = {'foreground': '#ffffff', 'background': '#292929'}
+
+    # These five lines are optional. If omitted, default colours are used.
+    cdg.tagdefs['COMMENT'] = {'foreground': '#ffffff', 'background': '#292929'}
+    cdg.tagdefs['KEYWORD'] = {'foreground': '#ffffff', 'background': '#292929'}
+    cdg.tagdefs['BUILTIN'] = {'foreground': '#ffffff', 'background': '#292929'}
+    cdg.tagdefs['STRING'] = {'foreground': '#ffffff', 'background': '#292929'}
+    cdg.tagdefs['DEFINITION'] = {'foreground': '#ffffff', 'background': '#292929'}
 
 class PythonSyntax:
     cdg = ic.ColorDelegator()
     cdg.prog = re.compile(r'\b(?P<MYGROUP>tkinter)\b|' + ic.make_pat(), re.S)
     cdg.idprog = re.compile(r'\s+(\w+)', re.S)
 
-    cdg.tagdefs['MYGROUP'] = {'foreground': '#7F7F7F', 'background': '#292929'}
+    cdg.tagdefs['MYGROUP'] = {'foreground': '#bf3434', 'background': '#292929'}
 
     # These five lines are optional. If omitted, default colours are used.
     cdg.tagdefs['COMMENT'] = {'foreground': '#FF0000', 'background': '#292929'}
@@ -24,23 +34,14 @@ class PythonSyntax:
     cdg.tagdefs['STRING'] = {'foreground': '#7F3F00', 'background': '#292929'}
     cdg.tagdefs['DEFINITION'] = {'foreground': '#007F7F', 'background': '#292929'}
 
-class App():
-    def __init__(self):
-        super().__init__()
-
-        self.frame = tk.Frame(self.master, background='#050505')
-        self.frame.pack(expand = True, fill = tk.BOTH)
-
-        self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
-        self.text.pack(expand = True, fill = tk.BOTH)
+root = tk.Tk()
+# Creating Menubar
+menubar = tk.Menu(root)
 
 class Window:
-    # global variable
-    fileExtension = ''
-
     def __init__(self, master):
         self.master = master
-        
+
         self.frame = tk.Frame(self.master, background='#050505')
         self.frame.pack(expand = True, fill = tk.BOTH)
 
@@ -56,8 +57,6 @@ class Window:
               root.title("tinGUI - " + str(pathlib.Path(tf.name)))
               data = tf.read()
               self.text.insert(END, data)
-              global fileExtension
-              fileExtension = str(pathlib.Path(tf.name).suffix)
               tf.close()
              except:
                 pass
@@ -76,8 +75,6 @@ class Window:
               tf = open(tf)
               data = tf.read()
               self.text.insert(END, data)
-              global fileExtension
-              fileExtension = str(pathlib.Path(tf.name).suffix)
               tf.close()
              except:
                 pass
@@ -107,8 +104,36 @@ class Window:
                     f.write(self.text.get('1.0', tk.END))
             except:
                 pass
- 
-        def guiGroup0(): 
+
+        def guiGroup0():
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
+            self.text.pack(expand = True, fill = tk.BOTH)
+            clearSyntaxFilters
+
+        def clearSyntaxFilters():
+            ip.Percolator(self.text).filters.clear()
+            ip.Percolator(self.text).filters.pop()
+            ip.Percolator(self.text).filters.remove()
+            ip.Percolator(self.text).close()
+            ip.Percolator(self.text).delete()
+            ip.Delegator.resetcache()
+
+        def textSyntax():
+            try:
+                ip.Percolator(self.text).insertfilter(TextSyntax.cdg)
+            except:
+                clearSyntaxFilters
+                ip.Percolator(self.text).insertfilter(TextSyntax.cdg)
+            
+
+        def pythonSyntax():
+            try:
+                ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
+            except:
+                clearSyntaxFilters
+                ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
+        
+        def guiGroup1(): 
             # Adding File Menu and commands
             file = tk.Menu(menubar, tearoff = 0)
             menubar.add_cascade(label ='File', menu = file)
@@ -124,25 +149,12 @@ class Window:
             menubar.add_cascade(label ='Edit', menu = edit)
             edit.add_command(label ='Clear', command = clearTextField)
 
-        def guiGroup1():
-            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg='#292929', fg='#ffffff', insertbackground='#ffffff')
-            self.text.pack(expand = True, fill = tk.BOTH)
-            ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
-
-        # WIP
-        # syntax highlighting per language
-        #def syntaxHihglighting():
-        #    try:
-        #        global fileExtension
-        #        print(fileExtension)
-        #        if fileExtension == ".py" :
-        #            ip.Percolator(self.text).insertfilter(PythonSyntax.cdg)
-        #        else:
-        #            pass
-        #    except:
-        #        pass
-        #syntaxHihglighting
-
+            # Adding Edit Menu and commands
+            syntax = tk.Menu(menubar, tearoff = 0)
+            menubar.add_cascade(label ='Syntax', menu = syntax)
+            syntax.add_command(label ='Plain Text', command = textSyntax)
+            syntax.add_command(label ='Python', command = pythonSyntax)
+ 
         threading.Thread(target=guiGroup0).start()
         threading.Thread(target=guiGroup1).start()
 

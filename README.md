@@ -44,14 +44,14 @@ curl.exe https://raw.githubusercontent.com/BeanGreen247/tinGUI/main/tinGUI/tinGU
 This should open the text editor without having to download it.
 
 ### TODO
-* ~~Loading of files~~
-* ~~Saving files~~
-  * ~~Save button with no dialog~~
-  * ~~Save As button with dialog~~
+* ~~Loading of files~~ done
+* ~~Saving files~~ done
+  * ~~Save button with no dialog~~ done
+  * ~~Save As button with dialog~~ done
 * Programming Language syntax support
-  * ~~Python~~
+  * ~~Python~~ done
   * Bash
-  * Java
+  * ~~Java~~ done
   * C#
 > more languages will be added as time goes on...
 
@@ -60,4 +60,8 @@ If you encounter a bug/problem, please report it here, thx
 
 https://github.com/BeanGreen247/tinGUI/issues
 
+### current bugs
+* switching languages more than once causes it to crash/freeze
+
+---
 BeanGreen247, 2023

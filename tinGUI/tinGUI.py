@@ -1,12 +1,12 @@
 import pathlib
 import tkinter as tk
 import threading
-from tkinter import END, filedialog
+from tkinter import END, Tk, Toplevel, filedialog
 import idlelib.percolator as ip
 import idlelib.colorizer as ic
 import re
 
-version='v0.1.alpha'
+version='v0.1.2.alpha'
 # color def
 bgColor = '#292929'
 pythonCommentColor = '#FF0000'
@@ -112,6 +112,29 @@ root = tk.Tk()
 # Creating Menubar
 menubar = tk.Menu(root)
 
+# about window
+about = tk.Tk()
+
+# Add a Scrollbar(horizontal)
+v=tk.Scrollbar(root, orient='vertical')
+v.pack(side=tk.RIGHT, fill='y')
+
+class AboutApp(tk.Frame):
+    try:
+        def __init__(self, master=about):
+            try:
+                super().__init__(master)
+                self.master = master
+                self.pack()
+                self.label = tk.Label(self)
+                self.label["text"] = "tinGUI is a text editor" + "\ncreated in Python with tkinter." + "\n\nCreated by BeanGreen247." + "\n\nContact info:" + \
+            "\nGithub > https://github.com/BeanGreen247" + "\nEmail-1 > mozdrent@gmail.com" + "\nEmail-2 > mozdrent.business@outlook.com" + "\n\n2023"
+                self.label.pack(side="top")
+            except:
+                pass
+    except:
+        pass
+
 class Window:
     def __init__(self, master):
         self.master = master
@@ -179,40 +202,70 @@ class Window:
             except:
                 pass
 
+        # WIP show about window
+        def showAboutWindow():
+            try:
+                AboutApp(master=AboutApp.about).mainloop()
+            except:
+                pass
+
         def guiGroup0():
-            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg=bgColor, fg='#ffffff', insertbackground='#ffffff')
+            # here we connect the scrollbar to the textbox view
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg=bgColor, fg='#ffffff', insertbackground='#ffffff', yscrollcommand=v.set)
             self.text.pack(expand = True, fill = tk.BOTH)
+            # enables draging of the scroll bar to navigate the text file
+            v.config(command=self.text.yview)
             clearSyntaxFilters
 
         def clearSyntaxFilters():
             ip.Percolator(self.text).filters.clear()
-            ip.Percolator(self.text).close()
             ip.Delegator.resetcache()
+            ip.Percolator.close()
 
         def textSyntax():
+            clearSyntaxFilters
+            self.text.pack_forget()
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg=bgColor, fg='#ffffff', insertbackground='#ffffff', yscrollcommand=v.set)
+            self.text.pack(expand = True, fill = tk.BOTH)
+            v.config(command=self.text.yview)
+            with open(root.title().split('-')[1][1:]) as f:
+                data = f.read()
+            self.text.insert(END, data)
+            clearSyntaxFilters
             try:
                 ip.Percolator(self.text).insertfilter(TextSyntax.cd)
             except:
-                clearSyntaxFilters
-                ip.Percolator(self.text).open()
-                ip.Percolator(self.text).insertfilter(TextSyntax.cd)
+                pass
             
-
         def pythonSyntax():
+            clearSyntaxFilters
+            self.text.pack_forget()
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg=bgColor, fg='#ffffff', insertbackground='#ffffff', yscrollcommand=v.set)
+            self.text.pack(expand = True, fill = tk.BOTH)
+            v.config(command=self.text.yview)
+            with open(root.title().split('-')[1][1:]) as f:
+                data = f.read()
+            self.text.insert(END, data)
+            clearSyntaxFilters
             try:
                 ip.Percolator(self.text).insertfilter(PythonSyntax.cd)
             except:
-                clearSyntaxFilters
-                ip.Percolator(self.text).open()
-                ip.Percolator(self.text).insertfilter(PythonSyntax.cd)
+                pass
 
         def javaSyntax():
+            clearSyntaxFilters
+            self.text.pack_forget()
+            self.text = tk.Text(self.frame, undo = True, height = 40, width = 140, bg=bgColor, fg='#ffffff', insertbackground='#ffffff', yscrollcommand=v.set)
+            self.text.pack(expand = True, fill = tk.BOTH)
+            v.config(command=self.text.yview)
+            with open(root.title().split('-')[1][1:]) as f:
+                data = f.read()
+            self.text.insert(END, data)
+            clearSyntaxFilters
             try:
                 ip.Percolator(self.text).insertfilter(JavaSyntax.cd)
             except:
-                clearSyntaxFilters
-                ip.Percolator(self.text).open()
-                ip.Percolator(self.text).insertfilter(JavaSyntax.cd)
+                pass
         
         def guiGroup1(): 
             # Adding File Menu and commands
@@ -236,6 +289,11 @@ class Window:
             syntax.add_command(label ='Plain Text', command = textSyntax)
             syntax.add_command(label ='Python', command = pythonSyntax)
             syntax.add_command(label ='Java', command = javaSyntax)
+
+            # Adding Help Menu and commands
+            hMenu = tk.Menu(menubar, tearoff = 0)
+            menubar.add_cascade(label ='Help', menu = hMenu)
+            hMenu.add_command(label ='About tinGUI', command = showAboutWindow)
  
         threading.Thread(target=guiGroup0).start()
         threading.Thread(target=guiGroup1).start()
